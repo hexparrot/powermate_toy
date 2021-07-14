@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # Author: William Dizon <wdchromium@gmail.com>
 # Thanks to: William R Sowerbutts <will@sowerbutts.com>
@@ -26,7 +26,6 @@ from collections import deque
 
 NUMBERS_ON_DIAL = 94
 QUEUE_LENGTH = NUMBERS_ON_DIAL * 3 
-DEVICE = '/dev/input/event1'
 
 def offset_to_label(offset):
     # Accepts relative position to 0/reset lock
@@ -39,7 +38,7 @@ def offset_to_label(offset):
         retval -= NUMBERS_ON_DIAL
     return retval
 
-dial = pm.PowerMate(DEVICE)
+dial = pm.PowerMate()
 dial.SetLEDState(256, 254, 2, False, False)
 
 # deque contains list of last x button events
@@ -64,13 +63,13 @@ while True:
         # dial rotated
 
         if evt[4] == -1:
-            #print 'anticlockwise'
+            #print('anticlockwise')
 
             q.popleft()
             q.append(True)
             offset += -1
         elif evt[4] == 1:
-            #print 'clockwise'
+            #print('clockwise')
 
             mapped = map(lambda x: x is False, q)
             if all(mapped):
@@ -85,20 +84,20 @@ while True:
     elif evt[2:4] == (1,256):
         # button press
         if evt[4] == 1:
-            print 'button down'
+            print('button down')
         elif evt[4] == 0:
-            print 'button up'
+            print('button up')
 
     mapped = map(lambda x: x is False, q)
     if all(mapped):
         if offset != 0:
-            print 'reset dial to 0'
+            print('reset dial to 0')
         offset, last = 0, 0
         q = deque(False for _ in range(QUEUE_LENGTH))
 
     if last != offset:
         reported = offset_to_label(offset)
-        print reported
+        print(reported)
         last = offset
 
         # SetLEDState(brightness, pulse_speed, pulse_table, p_when_sleep, p_when_awake)
