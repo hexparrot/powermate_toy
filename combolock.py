@@ -3,11 +3,11 @@
 # Author: William Dizon <wdchromium@gmail.com>
 # Thanks to: William R Sowerbutts <will@sowerbutts.com>
 # Griffin powermate spec: https://android.googlesource.com/kernel/msm.git/+/eaf36994a3992b8f918c18e4f7411e8b2320a35f/drivers/input/misc/powermate.c
-# Dependencies: powermate interface for python <https://sowerbutts.com/powermate/>
+# Powermate interface for python included with express permission from William R Sowerbutts <https://sowerbutts.com/powermate/>
 
 # ISC License
 # 
-# Copyright (c) [year], [fullname]
+# Copyright (c) 2021, William Dizon
 # 
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
