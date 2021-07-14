@@ -22,10 +22,26 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import powermate as pm
+import itertools
 from collections import deque
 
 NUMBERS_ON_DIAL = 94
-QUEUE_LENGTH = NUMBERS_ON_DIAL * 3 
+COMBO_LENGTH = 3
+QUEUE_LENGTH = NUMBERS_ON_DIAL * COMBO_LENGTH
+
+def first_three_moved_distances(long_seq):
+    # Receives full deque and returns distance moved, not specific digits
+    retval = []
+
+    if long_seq[0] is False:
+        # first in sequence must be False, to ensure starting from
+        # reset position--a valid combo will never require every element
+        seq = itertools.dropwhile(lambda x: x is False, long_seq)
+
+        for i in itertools.groupby(seq, key=bool):
+            retval.append(len(list(i[1])))
+
+    return retval if len(retval) == COMBO_LENGTH else []
 
 def offset_to_label(offset):
     # Accepts relative position to 0/reset lock
@@ -44,11 +60,13 @@ dial.SetLEDState(256, 254, 2, False, False)
 # deque contains list of last x button events
 # where x is a function of the numbers on the
 # dial. 3*n clock is the trigger for reset.
-# T/anticlockwise, F/clockwise
-q = deque(False for _ in range(QUEUE_LENGTH))
+# T/anticlockwise, F/c://stackoverflow.com/questions/10003143/how-to-slice-a-deque lockwise
+
+q = deque(itertools.repeat(False, QUEUE_LENGTH), QUEUE_LENGTH)
 
 offset = 0
 last = offset
+distances_moved = []
 
 while True:
     evt = dial.WaitForEvent(60)
@@ -85,6 +103,8 @@ while True:
         # button press
         if evt[4] == 1:
             print('button down')
+            distances_moved = first_three_moved_distances(q)
+            print(distances_moved)
         elif evt[4] == 0:
             print('button up')
 
@@ -93,6 +113,7 @@ while True:
         if offset != 0:
             print('reset dial to 0')
         offset, last = 0, 0
+        distances_moved = []
         q = deque(False for _ in range(QUEUE_LENGTH))
 
     if last != offset:
