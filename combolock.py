@@ -54,6 +54,25 @@ def offset_to_label(offset):
         retval -= NUMBERS_ON_DIAL
     return retval
 
+def movement_to_code(movement):
+    # Accepts list of grouped dial movement (user facing labels)
+    # Returns values dial stopped on
+    # If dial has been turned more than COMBO_LENGTH, return []
+    # [ 80,  10,  85] <- user facing
+    # [ 14,  24,  19] <- movement
+    # [-14,  24, -19] <- adjusted
+
+    if len(movement) != COMBO_LENGTH:
+        return []
+
+    entered = [0]
+    for i in range(COMBO_LENGTH):
+        if i % 2 == 0: #if even, e.g., anticlock
+            entered.append(offset_to_label(entered[i] - movement[i]))
+        else:
+            entered.append(offset_to_label(entered[i] + movement[i]))
+    return entered[1:]
+
 dial = pm.PowerMate()
 dial.SetLEDState(256, 254, 2, False, False)
 
@@ -104,7 +123,8 @@ while True:
         if evt[4] == 1:
             print('button down')
             distances_moved = first_three_moved_distances(q)
-            print(distances_moved)
+            combo = movement_to_code(distances_moved)
+            print('entered code', combo)
         elif evt[4] == 0:
             print('button up')
 
@@ -114,7 +134,7 @@ while True:
             print('reset dial to 0')
         offset, last = 0, 0
         distances_moved = []
-        q = deque(False for _ in range(QUEUE_LENGTH))
+        q = deque(itertools.repeat(False, QUEUE_LENGTH), QUEUE_LENGTH)
 
     if last != offset:
         reported = offset_to_label(offset)
