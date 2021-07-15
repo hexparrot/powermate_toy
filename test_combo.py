@@ -56,15 +56,6 @@ class TestComboLock(unittest.TestCase):
         self.assertTrue(inst.secured)
         self.assertEqual(inst.code, (30,80,12))
 
-    def test_code_sequence(self):
-        inst = combinationlock.CombinationLock( (36,24,36) )
-        seq = iter(inst.code_sequence)
-        self.assertEqual(len(inst.code_sequence), 118)
-
-        inst = combinationlock.CombinationLock( (30,80,12) )
-        seq = iter(inst.code_sequence)
-        self.assertEqual(len(inst.code_sequence), 164)
-
     def test_distance(self):
         clsm = combinationlock.CombinationLock
         li = combinationlock.LockInputs

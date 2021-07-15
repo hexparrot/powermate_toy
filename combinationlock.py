@@ -43,18 +43,10 @@ class CombinationLock(object):
                 return start_pos - end_pos
 
     def __init__(self, code=(0,0,0)):
-        from collections import deque
-
         self.position = 0
         self.secured = True
         self.code = code
-        self.code_sequence = []
         self.movement = []
-
-        for i in range(self.distance(code[0], code[1], LockInputs.Anticlockwise) + self.DIAL_SIZE):
-            self.code_sequence.append(LockInputs.Anticlockwise)
-        for i in range(self.distance(code[1], code[2], LockInputs.Clockwise)):
-            self.code_sequence.append(LockInputs.Clockwise)
 
     def interact(self, inputaction):
         if inputaction is LockInputs.Clockwise:
@@ -71,8 +63,14 @@ class CombinationLock(object):
 
         from itertools import zip_longest, chain, repeat
         iter_movement = iter(self.movement)
-        iter_code = chain(repeat(LockInputs.Clockwise, self.code[0]), iter(self.code_sequence))
+        iter_code = chain(repeat(LockInputs.Clockwise, self.code[0]),
+                          repeat(LockInputs.Anticlockwise, self.distance(self.code[0], self.code[1], LockInputs.Anticlockwise) + self.DIAL_SIZE),
+                          repeat(LockInputs.Clockwise, self.distance(self.code[1], self.code[2], LockInputs.Clockwise)))
+
         zipped = zip_longest(iter_code, iter_movement)
 
-        self.secured = not all(a == b for a,b in zipped)
+        if self.code == (0,0,0):
+            self.secured = True
+        else:
+            self.secured = not all(a == b for a,b in zipped)
 
