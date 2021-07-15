@@ -21,11 +21,11 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import powermate as pm
+import sys
+import powermate
 import combinationlock
 
-dial = pm.PowerMate()
-dial.SetLEDState(256, 254, 2, False, False)
+dial = powermate.PowerMate()
 
 lock = combinationlock.CombinationLock( (10,60,30) )
 inputs = combinationlock.LockInputs
@@ -34,7 +34,7 @@ while True:
     evt = dial.WaitForEvent(60)
 
     if evt is None:
-        break
+        sys.exit(255)
     elif evt[2:4] == (2,7):
         # dial rotated
         if evt[4] == -1: #anticlock
@@ -47,6 +47,8 @@ while True:
         if evt[4] == 1:
             print('button down')
             print('secured:', lock.secured)
+            if not lock.secured:
+                sys.exit(0)
         elif evt[4] == 0:
             print('button up')
 
