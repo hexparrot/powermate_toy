@@ -81,5 +81,23 @@ class TestComboLock(unittest.TestCase):
         self.assertEqual(clsm.distance(30, 20, li.Clockwise), 84)
         self.assertEqual(clsm.distance(30, 20, li.Anticlockwise), 10)
 
+    def test_open_lock(self):
+        inst = combinationlock.CombinationLock( (36,24,36) )
+        li = combinationlock.LockInputs
+
+        self.assertTrue(inst.secured)
+
+        for _ in range(36):
+            inst.interact(li.Clockwise)
+
+        for _ in range(inst.DIAL_SIZE + inst.distance(36, 24, li.Anticlockwise)):
+            inst.interact(li.Anticlockwise)
+
+        for _ in range(inst.distance(24, 36, li.Clockwise)):
+            inst.interact(li.Clockwise)
+
+        self.assertFalse(inst.secured)
+
 if __name__ == "__main__":
     unittest.main()
+
