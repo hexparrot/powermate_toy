@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+
+# Author: William Dizon <wdchromium@gmail.com>
+# Thanks to: William R Sowerbutts <will@sowerbutts.com>
+# Griffin powermate spec: https://android.googlesource.com/kernel/msm.git/+/eaf36994a3992b8f918c18e4f7411e8b2320a35f/drivers/input/misc/powermate.c
+# Powermate interface for python included with express permission from William R Sowerbutts <https://sowerbutts.com/powermate/>
+
+# ISC License
+# 
+# Copyright (c) 2021, William Dizon
+# 
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+import powermate as pm
+import combinationlock
+
+dial = pm.PowerMate()
+dial.SetLEDState(256, 254, 2, False, False)
+
+lock = combinationlock.CombinationLock( (10,60,30) )
+inputs = combinationlock.LockInputs
+
+while True:
+    evt = dial.WaitForEvent(60)
+
+    if evt is None:
+        break
+    elif evt[2:4] == (2,7):
+        # dial rotated
+        if evt[4] == -1: #anticlock
+            lock.interact(inputs.Anticlockwise)
+        elif evt[4] == 1:
+            lock.interact(inputs.Clockwise)
+
+        print(lock.position)
+    elif evt[2:4] == (1,256): #button press
+        if evt[4] == 1:
+            print('button down')
+            print('secured:', lock.secured)
+        elif evt[4] == 0:
+            print('button up')
+
