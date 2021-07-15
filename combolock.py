@@ -41,6 +41,8 @@ while True:
             lock.interact(inputs.Anticlockwise)
         elif evt[4] == 1:
             lock.interact(inputs.Clockwise)
+            if len(lock.movement) == 0:
+                print('lock reset to 0')
 
         print(lock.position)
     elif evt[2:4] == (1,256): #button press
