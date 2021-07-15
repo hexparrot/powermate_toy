@@ -150,6 +150,7 @@ class TestComboLock(unittest.TestCase):
 
         self.assertTrue(inst.secured)
         inst.reset()
+        self.assertEqual(inst.position, 0)
 
         # correct sequence
         for _ in range(36):
@@ -166,6 +167,41 @@ class TestComboLock(unittest.TestCase):
 
         inst.interact(li.Clockwise)
         self.assertFalse(inst.secured)
+
+    def test_reset_on_three_clockturns(self):
+        inst = combinationlock.CombinationLock( (36,24,36) )
+        li = combinationlock.LockInputs
+
+        for _ in range(36):
+            inst.interact(li.Clockwise)
+
+        for _ in range(40):
+            inst.interact(li.Anticlockwise)
+
+        self.assertEqual(len(inst.movement), 76)
+
+        for _ in range((inst.DIAL_SIZE * 3) - 1):
+            inst.interact(li.Clockwise)
+            self.assertNotEqual(len(inst.movement), 0)
+
+        inst.interact(li.Clockwise)
+        self.assertEqual(len(inst.movement), 0)
+        self.assertEqual(inst.position, 0)
+
+    def test_limit_history_to_three_turns(self):
+        inst = combinationlock.CombinationLock( (36,24,36) )
+        li = combinationlock.LockInputs
+
+        max_len = inst.DIAL_SIZE * 3
+
+        for _ in range(max_len - 1):
+            inst.interact(li.Anticlockwise)
+            self.assertTrue(len(inst.movement) < inst.DIAL_SIZE * 3)
+
+        inst.interact(li.Anticlockwise)
+        self.assertEqual(len(inst.movement), inst.DIAL_SIZE * 3)
+        inst.interact(li.Anticlockwise)
+        self.assertEqual(len(inst.movement), inst.DIAL_SIZE * 3)
 
 if __name__ == "__main__":
     unittest.main()

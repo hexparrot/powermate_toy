@@ -72,7 +72,15 @@ class CombinationLock(object):
         if self.code == (0,0,0):
             self.secured = True
         else:
+            max_len = self.DIAL_SIZE * 3
+            while len(self.movement) > max_len:
+                self.movement.pop(0)
+            if len(self.movement) == max_len:
+                if all(a is LockInputs.Clockwise for a in self.movement[-max_len:]): # get last 94*3 elements
+                    self.reset()
+
             self.secured = not all(a == b for a,b in zipped)
 
     def reset(self):
         self.movement = []
+        self.position = 0
