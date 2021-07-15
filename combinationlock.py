@@ -26,7 +26,7 @@ class CombinationLock(object):
             else:
                 return start_pos - end_pos
 
-    def __init__(self, code=()):
+    def __init__(self, code=(0,0,0)):
         from collections import deque
 
         self.position = 0
@@ -35,13 +35,10 @@ class CombinationLock(object):
         self.code_sequence = []
         self.movement = []
 
-        try:
-            for i in range(self.distance(code[0], code[1], LockInputs.Anticlockwise) + self.DIAL_SIZE):
-                self.code_sequence.append(LockInputs.Anticlockwise)
-            for i in range(self.distance(code[1], code[2], LockInputs.Clockwise)):
-                self.code_sequence.append(LockInputs.Clockwise)
-        except IndexError:
-            pass
+        for i in range(self.distance(code[0], code[1], LockInputs.Anticlockwise) + self.DIAL_SIZE):
+            self.code_sequence.append(LockInputs.Anticlockwise)
+        for i in range(self.distance(code[1], code[2], LockInputs.Clockwise)):
+            self.code_sequence.append(LockInputs.Clockwise)
 
     def interact(self, inputaction):
         if inputaction is LockInputs.Clockwise:
@@ -57,13 +54,9 @@ class CombinationLock(object):
             self.position = 0
 
         from itertools import zip_longest, chain, repeat
-        try:
-            iter_movement = iter(self.movement)
-            iter_code = chain(repeat(LockInputs.Clockwise, self.code[0]), iter(self.code_sequence))
-            zipped = zip_longest(iter_code, iter_movement)
+        iter_movement = iter(self.movement)
+        iter_code = chain(repeat(LockInputs.Clockwise, self.code[0]), iter(self.code_sequence))
+        zipped = zip_longest(iter_code, iter_movement)
 
-            if all(a == b for a,b in zipped):
-                self.secured = False
-        except (IndexError, AssertionError):
-            pass
+        self.secured = not all(a == b for a,b in zipped)
 

@@ -46,7 +46,7 @@ class TestComboLock(unittest.TestCase):
     def test_set_code(self):
         inst = combinationlock.CombinationLock()
         self.assertTrue(inst.secured)
-        self.assertEqual(inst.code, ())
+        self.assertEqual(inst.code, (0,0,0))
 
         inst = combinationlock.CombinationLock( (36,24,36) )
         self.assertTrue(inst.secured)
@@ -97,6 +97,30 @@ class TestComboLock(unittest.TestCase):
             inst.interact(li.Clockwise)
 
         self.assertFalse(inst.secured)
+
+    def test_unopened_lock_relocks(self):
+        inst = combinationlock.CombinationLock( (36,24,36) )
+        li = combinationlock.LockInputs
+
+        self.assertTrue(inst.secured)
+
+        for _ in range(36):
+            inst.interact(li.Clockwise)
+
+        for _ in range(inst.DIAL_SIZE + inst.distance(36, 24, li.Anticlockwise)):
+            inst.interact(li.Anticlockwise)
+
+        for _ in range(inst.distance(24, 36, li.Clockwise)):
+            inst.interact(li.Clockwise)
+
+        self.assertFalse(inst.secured)
+        inst.interact(li.Clockwise)
+        self.assertTrue(inst.secured)
+
+    def test_unset_lock(self):
+        inst = combinationlock.CombinationLock()
+        self.assertTrue(inst.secured)
+        # this works because of the implied +DIAL_SIZE for the anticlock rotation
 
 if __name__ == "__main__":
     unittest.main()
