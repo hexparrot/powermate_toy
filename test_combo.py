@@ -89,13 +89,17 @@ class TestComboLock(unittest.TestCase):
 
         for _ in range(36):
             inst.interact(li.Clockwise)
+            self.assertTrue(inst.secured)
 
         for _ in range(inst.DIAL_SIZE + inst.distance(36, 24, li.Anticlockwise)):
             inst.interact(li.Anticlockwise)
+            self.assertTrue(inst.secured)
 
-        for _ in range(inst.distance(24, 36, li.Clockwise)):
+        for _ in range(inst.distance(24, 36, li.Clockwise) - 1):
             inst.interact(li.Clockwise)
+            self.assertTrue(inst.secured)
 
+        inst.interact(li.Clockwise)
         self.assertFalse(inst.secured)
 
     def test_unopened_lock_relocks(self):
@@ -106,21 +110,31 @@ class TestComboLock(unittest.TestCase):
 
         for _ in range(36):
             inst.interact(li.Clockwise)
+            self.assertTrue(inst.secured)
 
         for _ in range(inst.DIAL_SIZE + inst.distance(36, 24, li.Anticlockwise)):
             inst.interact(li.Anticlockwise)
+            self.assertTrue(inst.secured)
 
-        for _ in range(inst.distance(24, 36, li.Clockwise)):
+        for _ in range(inst.distance(24, 36, li.Clockwise) - 1):
             inst.interact(li.Clockwise)
+            self.assertTrue(inst.secured)
 
+        inst.interact(li.Clockwise)
         self.assertFalse(inst.secured)
         inst.interact(li.Clockwise)
         self.assertTrue(inst.secured)
 
     def test_unset_lock(self):
         inst = combinationlock.CombinationLock()
+        li = combinationlock.LockInputs
+
         self.assertTrue(inst.secured)
         # this works because of the implied +DIAL_SIZE for the anticlock rotation
+        for _ in range(inst.DIAL_SIZE):
+            inst.interact(li.Anticlockwise)
+            self.assertTrue(inst.secured)
+        self.assertTrue(inst.secured)
 
 if __name__ == "__main__":
     unittest.main()
