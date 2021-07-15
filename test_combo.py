@@ -127,6 +127,46 @@ class TestComboLock(unittest.TestCase):
             self.assertTrue(inst.secured)
         self.assertTrue(inst.secured)
 
+    def test_reset_lock(self):
+        inst = combinationlock.CombinationLock( (36,24,36) )
+        li = combinationlock.LockInputs
+
+        self.assertTrue(inst.secured)
+        inst.interact(li.Clockwise)
+        self.assertTrue(inst.secured)
+
+        # correct sequence, but polluted with preceding clock turn
+        for _ in range(36):
+            inst.interact(li.Clockwise)
+            self.assertTrue(inst.secured)
+
+        for _ in range(inst.DIAL_SIZE + inst.distance(36, 24, li.Anticlockwise)):
+            inst.interact(li.Anticlockwise)
+            self.assertTrue(inst.secured)
+
+        for _ in range(inst.distance(24, 36, li.Clockwise)):
+            inst.interact(li.Clockwise)
+            self.assertTrue(inst.secured)
+
+        self.assertTrue(inst.secured)
+        inst.reset()
+
+        # correct sequence
+        for _ in range(36):
+            inst.interact(li.Clockwise)
+            self.assertTrue(inst.secured)
+
+        for _ in range(inst.DIAL_SIZE + inst.distance(36, 24, li.Anticlockwise)):
+            inst.interact(li.Anticlockwise)
+            self.assertTrue(inst.secured)
+
+        for _ in range(inst.distance(24, 36, li.Clockwise) - 1):
+            inst.interact(li.Clockwise)
+            self.assertTrue(inst.secured)
+
+        inst.interact(li.Clockwise)
+        self.assertFalse(inst.secured)
+
 if __name__ == "__main__":
     unittest.main()
 

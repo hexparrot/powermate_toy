@@ -74,3 +74,5 @@ class CombinationLock(object):
         else:
             self.secured = not all(a == b for a,b in zipped)
 
+    def reset(self):
+        self.movement = []
