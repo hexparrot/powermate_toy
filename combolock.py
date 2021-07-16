@@ -29,6 +29,7 @@ dial = powermate.PowerMate()
 
 lock = combinationlock.CombinationLock( (10,60,30) )
 inputs = combinationlock.LockInputs
+last_direction = inputs.Clockwise
 
 while True:
     evt = dial.WaitForEvent(60)
@@ -39,18 +40,27 @@ while True:
         # dial rotated
         if evt[4] == -1: #anticlock
             lock.interact(inputs.Anticlockwise)
+            if last_direction != inputs.Anticlockwise:
+                print('')
+            last_direction = inputs.Anticlockwise
         elif evt[4] == 1:
             lock.interact(inputs.Clockwise)
+            if last_direction != inputs.Clockwise:
+                print('')
+            last_direction = inputs.Clockwise
             if len(lock.movement) == 0:
-                print('lock reset to 0')
+                print('lock reset to 0', end='\r', flush=True)
 
-        print(lock.position)
+        print("{0: >4}".format(lock.position), end='\r', flush=True)
     elif evt[2:4] == (1,256): #button press
         if evt[4] == 1:
-            print('button down')
+            #print('button down')
+            print('')
             print('secured:', lock.secured)
             if not lock.secured:
                 sys.exit(0)
+            else:
+                lock.reset()
         elif evt[4] == 0:
-            print('button up')
+            pass #print('button up')
 
